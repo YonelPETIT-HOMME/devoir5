@@ -1,0 +1,309 @@
+---
+title: "series temporelles"
+author: "Yonel"
+date: "`r format(Sys.Date())`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Introduction
+
+Une série temporelle (ou une série chronologique) est définit 
+comme des données liées au temps. Cet indice temps peut être de différent ordre de 
+grandeur comme la seconde,  la minute, l'heure, le jour, l'année etc..[Notes de cours GAA-7007, 2019](https://essicolo.github.io/ecologie-mathematique-R/chapitre-git.html).
+
+Ces données peuvent être de différents types par exemple: des données météorologiques, de recencesement de population, des données sur la vente d'un produit quelconque dans une entreprise etc.
+
+Parfois pour des raisons économiques et autres, l'analyse de ces données ainsi que des prévisions se revèlent souvent très importantes car elles servent généralement à prendre des décisions pour le futur.
+
+Ainsi, ce présent travail s'inscrit dans un objectif d'apprentissage de la manipulation des données chronologiques. Il consiste principalement à créer une série temporelle, effectuer une modélisation et projeter la prévision pour effectuer des analyses sur la perfomance d'un modèle et de la prévision.
+
+
+# Analyses des données
+
+## présntation des données 
+
+Les données utilisées dans ce travail représentent les moyennes des mesures mensuelles de CO2 atmosphérique en ppm-volume collectées au Mauna Loa Observatory à Hawaii de mars 1958 à juillet 2001, inclusivement.
+
+
+## Chargement de package 
+
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library("forecast")
+```
+
+### Importation des données
+ 
+```{r}
+hawai_import <- read.csv("hawai.csv", encoding = "UTF-8")
+```
+ 
+### Créons d'une nouvelle variable `Date` et exportation de du jeu données
+
+```{r}
+hawai_import <- hawai_import %>%
+  mutate(Date = date_decimal(hawai_import$time))
+```
+
+```{r}
+write.csv(hawai_import, "hawai_import.csv")
+```
+
+La fonction `date_decimal` du package `lubridate` permet de transformer les décimaux en date, format "POSIXct".
+
+**Voyons la structure du jeu de données**
+
+```{r}
+str(hawai_import)
+
+any(is.na(hawai_import)) # pas de valeurs manquantes
+```
+
+### Visualisation des mesures mensuelles de co2 atmosphérique
+
+```{r}
+ggplot(data = hawai_import, mapping = aes(x = Date, y = CO2)) +
+  geom_line() + 
+  ylab("mesures mensuelles de CO2 atmosphérique") 
+```
+
+On observe une augmentation de CO2 dans le temps, avec des cycles visiblement réguliers.
+
+# 1- Création de séries temporelles du CO2 à partir du jeu de données hawai_import
+
+Nous allons utiliser la fonction `ts` du package de base en R
+
+```{r}
+hawai_import_ts <- ts(hawai_import %>% select(-c(Date, time)),
+                    start = c(hawai_import$Date[1] %>% year(), 3),
+                    frequency = 12)
+```
+
+
+**Jeu de données de mars 1958 à juillet 2001 comme mentionné dans le libellé**
+
+```{r}
+hawai_import_ts <- window(hawai_import_ts, start= c(1958, 3), end = c(2001, 7))
+length(hawai_import_ts)
+```
+
+```{r}
+inherits(hawai_import_ts, "ts")# format Times-Series 
+```
+
+Avec la fonction `inherits`, on vérifie la classe de l'objet hawai_import_ts
+
+
+
+**Essayons de filtrer les 10 premières années de la série temporelle avec la fonction `window `et visualisation avec la fonction `autoplot`**.
+
+```{r}
+hawai_import_ts_10 <- window(hawai_import_ts, start= c(1958, 3), end = c(1968, 3))
+autoplot(hawai_import_ts_10)
+```
+
+
+**Extraction des premiers éléments de la série correspondant à l'année 1958**
+
+```{r}
+head(hawai_import_ts_10, 10) 
+```
+
+
+
+## Visualisation entière de la séries avec `autoplot`
+
+```{r}
+autoplot(hawai_import_ts)
+```
+
+Pour créer la série temporelle, on a juste consideré la colonne de mesure mensuelle
+de CO2 en excluant les colonnes de date.
+
+
+## visualisation sur un graphique polaire des premières annnées de la série
+
+```{r}
+ggP <- ggseasonplot(hawai_import_ts_10, polar = TRUE) + ggtitle("")
+ggP
+```
+
+On voit très bien sur la graphique ci-dessus que la concentration CO2 Augmente au fil du temps.
+
+Chaque cycle correspond à une année.
+
+
+
+# 2- Sépation de la série en partie d'entrainement (environ 70% des données) et en parties test
+
+```{r}
+n <- length(hawai_import_ts)
+n     # nombre total d'observation
+ntrain <- n*0.7
+ntrain    # nombre d'observation des données test
+```
+
+```{r}
+hawai_import$Date[ntrain] %>% year()  # l'année qui termine la serie d'entrainement
+```
+
+```{r}
+hawai_import$Date[ntrain] %>% year() 
+```
+
+```{r}
+hawai_import_ts_train <- window(hawai_import_ts, start= c(1958, 3), end = c(1988, 7))
+hawai_import_ts_train # 70% environ des donnees
+length(hawai_import_ts_train) 
+hawai_import_ts_test <- window(hawai_import_ts, start= c(1988, 8))
+hawai_import_ts_test  # 30% des donnees
+length(hawai_import_ts_test) 
+```
+
+
+
+**Petite vérification**
+
+```{r}
+(length(hawai_import_ts_test) + length(hawai_import_ts_train)) == length(hawai_import_ts)
+```
+
+
+Donc la série est séparée en partie d'entrainement et en partie test
+
+
+# 3- Création d'un modèle `ETS` sur les données d'entrainement, puis projection de la prévision de CO2 atmosphérique pour comparer aux données test
+
+## Le modèle `ETS`
+
+```{r}
+hawai_import_ets <- hawai_import_ts_train %>%
+  forecast::ets()
+
+hawai_import_ets
+```
+
+On obtient un modèle de type ETS(M,Ad,M), c'est-à-dire d'erreur de type  multiplicative (M), de tendance additive (A) et de saison de type multiplicative (M).
+
+Un modèle non stationnaire c'est-à-dire avec présence de tendance et saisonnalité
+
+
+## Visualisation de l'évolution des différentes composantes du modèle
+
+```{r}
+hawai_import_ets %>% autoplot()
+```
+
+
+
+**Présentons un sommaire plus detaillé des résultats du modèle**
+
+```{r}
+summary(hawai_import_ets)
+```
+
+On voit que le modèle présente un bon ajustement aux données d'entrainement 
+avec surtout une valeur de  MASE = 0.2059554, très proche de zéro.
+Par contre cela n'indique pas que le modèle prédira correctement.
+
+
+## Projection de la prévision avec la fonction `forecast`
+
+```{r}
+hawai_import_prev <- hawai_import_ets %>% forecast(12*13)
+hawai_import_prev %>% autoplot() +
+  autolayer(hawai_import_ts_test, color = rgb(1, 0, 1, 0.6))+
+  xlab("Time") +
+  ylab("Mesures mensuelles atmospherique de CO2")
+```
+
+Le modèle parait être pas fiable car on observe une tendance de la baisse de CO2  sur le graphique contrairement à ce que nous montre les données test en rouge.
+
+
+# 4- Analyse de résidus du modèle ETS
+
+```{r}
+checkresiduals(hawai_import_ets)
+```
+
+Avec une valeur de p-value = 1.216e-07, il est peu probable que les résidus forment un bruit blanc.
+
+Il semble qu'il y a une certaine corrélation dans les résidus en regardant le graphique d'autocorrélation, ce qui devrait être évité.
+
+Aussi en regardant le graphique de la distribution des résidus, on remarque la présence de valeurs aberrantes et les données semblent ne pas distribuer normalement.
+
+
+
+Faisons également l'analyse de l'exactitude du modèle sur la prévision avec la fonction forecast::accuracy() qui détecte de manière automatique la série d'entrainement de celle de test.
+
+```{r}
+accuracy(hawai_import_prev, hawai_import_ts)
+```
+
+Le modèle semble ne se comporte pas bien suivant les valeurs des paramètres obtenues pour l'ensemble de test, surtout en se basant sur la valeur de **MASE = 4.8247256**  très eloignée de zéro indiquant une mauvaise prévision du modèle.
+
+
+Donc, un modèle présentant un bon ajustement aux données d'entrainement ne permet pas toujours de bonne prédiction.
+
+C'est ce qu'on constate ici.
+
+# 5- Les commentaires
+
+On peut dire que le modèle n'est pas fiable.
+
+on pourrait améliorer le modèle en appliquant un autre méthode qui conviendrait le mieux comme ARIMA par exwemple.
+
+**Essayons la methode arima sur la série
+
+```{r}
+hawai_import_arima <- hawai_import_ts_train %>%
+  auto.arima()
+
+
+summary(hawai_import_arima) # sommaire
+```
+
+**Prévision avec le modèle ARIMA**
+
+```{r}
+hawai_import_arima_prev <- hawai_import_arima %>% forecast(12*13)
+hawai_import_arima_prev %>% autoplot() +
+  xlab("Time") +
+  ylab("Mesures mensuelles atmospherique de CO2")
+```
+
+
+
+**Analysons les résidus maintenant**
+
+```{r}
+checkresiduals(hawai_import_arima)
+```
+
+Maintenant, on obtient un meilleur modèle avec la méthode arima.
+
+Donc on peut dire que celle-ci correspond mieux aux données.
+
+On voit que le modèle `ARIMA(1,1,1)(2,1,2)[12]` détecte et fournit la composante saisonnière et la valeur [12] représente le nombre de saison. 
+
+
+**Maintenant, voyons l'exactitude de la prévision du modèle  ARIMA**
+
+```{r}
+accuracy(hawai_import_arima_prev, hawai_import_ts)
+```
+
+L'analyse de l'exactitude de la prévision nous donne des valeurs de paramètres plus acceptables pour les données de test.
+On obtient maintenant une valeur de **MASE = 1.1869628** pour les données qui est meilleure maintenant comparativement à celle (MASE = 4.8247256) obtenue avec le modèle `ets`.
+
+
+
+
+
