@@ -453,7 +453,21 @@ Avec une valeur de p-value = 1.216e-07, il est peu probable que les résidus for
 
 Il semble qu'il y a une certaine corrélation dans les résidus en regardant le graphique d'autocorrélation, ce qui devrait être évité.
 
-Aussi en regardant le graphique de la distribution des résidus, on remarque la présence de valeurs aberrantes et les données semblent ne pas distribuer normalement.
+Aussi en regardant le graphique de la distribution des résidus, on remarque la présence de valeurs aberrantes et les données semblent ne pas distribuer normalement. Cela peut etre aussi verifier par un test de shapiro.
+
+``` r
+shapiro.test(residuals(hawai_import_ets)) # Ce test permet de voir la normalite ou non de la distribution des residus.
+```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  residuals(hawai_import_ets)
+    ## W = 0.96812, p-value = 3.663e-07
+
+Donc, on voit bien que la valeur de p-value = 3.663e-07 obtenue par ce test est très inférieure à 0.05. La distribution des résidus est non-normale.
+
+**Evaluons l'exactitude de la prévision du modèle**
 
 Faisons également l'analyse de l'exactitude du modèle sur la prévision avec la fonction forecast::accuracy() qui détecte de manière automatique la série d'entrainement de celle de test.
 
@@ -518,7 +532,7 @@ hawai_import_arima_prev %>% autoplot() +
   ylab("Mesures mensuelles atmospherique de CO2")
 ```
 
-![](dev_files/figure-markdown_github/unnamed-chunk-26-1.png)
+![](dev_files/figure-markdown_github/unnamed-chunk-27-1.png)
 
 **Analysons les résidus maintenant**
 
@@ -526,7 +540,7 @@ hawai_import_arima_prev %>% autoplot() +
 checkresiduals(hawai_import_arima)
 ```
 
-![](dev_files/figure-markdown_github/unnamed-chunk-27-1.png)
+![](dev_files/figure-markdown_github/unnamed-chunk-28-1.png)
 
     ## 
     ##  Ljung-Box test
@@ -536,11 +550,11 @@ checkresiduals(hawai_import_arima)
     ## 
     ## Model df: 6.   Total lags used: 24
 
-Maintenant, on obtient un meilleur modèle avec la méthode arima.
+Maintenant, on obtient un meilleur modèle avec la méthode arima qui donne une valeur p-value = 0.3146. On peut dire que les résidus de ce modèle constituent un bruit blanc.
 
-Donc on peut dire que celle-ci correspond mieux aux données.
+Donc cette méthode correspond mieux aux données.
 
-On voit que le modèle `ARIMA(1,1,1)(2,1,2)[12]` détecte et fournit la composante saisonnière et la valeur \[12\] représente le nombre de saison.
+On a pu constater aussi que le modèle `ARIMA(1,1,1)(2,1,2)[12]` détecte et fournit la composante saisonnière des données et la valeur \[12\] représente le nombre de saison.
 
 **Maintenant, voyons l'exactitude de la prévision du modèle ARIMA**
 
