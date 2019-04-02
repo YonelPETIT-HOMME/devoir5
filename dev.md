@@ -1,6 +1,6 @@
 series temporelles
 ================
-Yonel
+Yonel PETIT-HOMME
 2019-04-01
 
 Introduction

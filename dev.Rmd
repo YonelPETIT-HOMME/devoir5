@@ -1,6 +1,6 @@
 ---
 title: "series temporelles"
-author: "Yonel"
+author: "Yonel PETIT-HOMME"
 date: "`r format(Sys.Date())`"
 output: github_document
 ---
