@@ -303,7 +303,10 @@ accuracy(hawai_import_arima_prev, hawai_import_ts)
 L'analyse de l'exactitude de la prévision nous donne des valeurs de paramètres plus acceptables pour les données de test.
 On obtient maintenant une valeur de **MASE = 1.1869628** pour les données qui est meilleure maintenant comparativement à celle (MASE = 4.8247256) obtenue avec le modèle `ets`.
 
+#conclusion
+Dans ce travail, nous avons procecé à l’analyse d’une série, produire un modèle sur celle-ci et effecuer des commentires sur sa prevision. un modèle ets a été créé sur la série dont les résultats montrent sa non fiabilité a prédire sur les données de test. un modele arima a été appliqué sur les données et les résultats se revelent meilleur que ceux de l’ets.
 
+Donc, le modèle malgré son bon ajustement sur les données d’entrainement n,a permis pas une bonne prédiction.
 
 
 
