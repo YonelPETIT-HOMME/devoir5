@@ -1,7 +1,7 @@
 series temporelles
 ================
 Yonel PETIT-HOMME
-2019-04-01
+2019-04-02
 
 Introduction
 ============
@@ -140,7 +140,7 @@ autoplot(hawai_import_ts_10)
 
 ![](dev_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-**Extraction des premiers éléments de la série correspondant à l'année 1958**
+**Extraction de 10 premiers éléments de la série correspondant à l'année 1958**
 
 ``` r
 head(hawai_import_ts_10, 10) 
@@ -430,7 +430,7 @@ hawai_import_prev %>% autoplot() +
 
 ![](dev_files/figure-markdown_github/unnamed-chunk-22-1.png)
 
-Le modèle parait être pas fiable car on observe une tendance de la baisse de CO2 sur le graphique contrairement à ce que nous montre les données test en rouge.
+Le modèle parait être pas fiable car on observe une tendance de la baisse de CO2 sur le graphique contrairement à ce que nous montre les données test en rose.
 
 4- Analyse de résidus du modèle ETS
 ===================================
@@ -477,11 +477,11 @@ C'est ce qu'on constate ici.
 5- Les commentaires
 ===================
 
-On peut dire que le modèle n'est pas fiable.
+la plupart des commentaires sont inséerrés après chaque partie du document, mais en ce qui a trait au modele `ets` on peut dire que ce modèle n'est pas fiable suivant les résultats de la prévision.
 
-on pourrait améliorer le modèle en appliquant un autre méthode qui conviendrait le mieux comme ARIMA par exwemple.
+on pourrait améliorer le modèle en appliquant un autre méthode qui conviendrait le mieux comme ARIMA par exemple.
 
-\*\*Essayons la methode arima sur la série
+**Essayons la methode arima sur la série**
 
 ``` r
 hawai_import_arima <- hawai_import_ts_train %>%
@@ -513,6 +513,7 @@ summary(hawai_import_arima) # sommaire
 ``` r
 hawai_import_arima_prev <- hawai_import_arima %>% forecast(12*13)
 hawai_import_arima_prev %>% autoplot() +
+  autolayer(hawai_import_ts_test, color = rgb(1, 0, 1, 0.6))+
   xlab("Time") +
   ylab("Mesures mensuelles atmospherique de CO2")
 ```
