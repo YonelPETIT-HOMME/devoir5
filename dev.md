@@ -1,7 +1,7 @@
 series temporelles
 ================
 Yonel PETIT-HOMME
-2019-04-02
+2019-04-04
 
 Introduction
 ============
@@ -368,9 +368,11 @@ hawai_import_ets
     ##      AIC     AICc      BIC 
     ## 1384.499 1386.476 1454.697
 
-On obtient un modèle de type ETS(M,Ad,M), c'est-à-dire d'erreur de type multiplicative (M), de tendance additive (A) et de saison de type multiplicative (M).
+On obtient un modèle de type ETS(M,Ad,M), c'est-à-dire d'erreur de type multiplicative (M), de tendance additive adoucissante (Ad) et de saison de type multiplicative (M).
 
-Un modèle non stationnaire c'est-à-dire avec présence de tendance et saisonnalité
+La valeur de phi = 0.9763 nous indique sur l'importance de l'adoucissement (une faible adoucissement)
+
+C'est un modèle non stationnaire c'est-à-dire avec présence de tendance et saisonnalité
 
 Visualisation de l'évolution des différentes composantes du modèle
 ------------------------------------------------------------------
