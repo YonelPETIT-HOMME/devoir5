@@ -10,7 +10,7 @@ Une série temporelle (ou une série chronologique) est définit comme des donn�
 
 Ces données peuvent être de différents types par exemple: des données météorologiques, de recencesement de population, des données sur la vente d'un produit quelconque dans une entreprise etc.
 
-Parfois pour des raisons économiques et autres, l'analyse de ces données ainsi que des prévisions se revèlent souvent très importantes car elles servent généralement à prendre des décisions pour le futur.
+Parfois pour des raisons économiques ou autres, l'analyse de ces données ainsi que des prévisions se revèlent souvent très importantes car elles servent généralement à prendre des décisions pour le futur.
 
 Ainsi, ce présent travail s'inscrit dans un objectif d'apprentissage de la manipulation des données chronologiques. Il consiste principalement à créer une série temporelle, effectuer une modélisation et projeter la prévision pour effectuer des analyses sur la perfomance d'un modèle et de la prévision.
 
@@ -61,7 +61,7 @@ library("forecast")
 hawai_import <- read.csv("hawai.csv", encoding = "UTF-8")
 ```
 
-### Créons d'une nouvelle variable `Date` et exportation de du jeu données
+### Création d'une nouvelle variable `Date` et exportation de du jeu données
 
 ``` r
 hawai_import <- hawai_import %>%
@@ -91,7 +91,7 @@ any(is.na(hawai_import)) # pas de valeurs manquantes
 
     ## [1] FALSE
 
-### Visualisation des mesures mensuelles de co2 atmosphérique
+### Visualisation des mesures mensuelles de CO2 atmosphérique
 
 ``` r
 ggplot(data = hawai_import, mapping = aes(x = Date, y = CO2)) +
@@ -140,7 +140,9 @@ autoplot(hawai_import_ts_10)
 
 ![](dev_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-**Extraction de 10 premiers éléments de la série correspondant à l'année 1958**
+Cette figure c'est juste pour une visualisation plus claire.
+
+-**Extraction de 10 premiers éléments de la série correspondant à l'année 1958**
 
 ``` r
 head(hawai_import_ts_10, 10) 
@@ -160,8 +162,6 @@ autoplot(hawai_import_ts)
 
 ![](dev_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
-Pour créer la série temporelle, on a juste consideré la colonne de mesure mensuelle de CO2 en excluant les colonnes de date.
-
 visualisation sur un graphique polaire des premières annnées de la série
 ------------------------------------------------------------------------
 
@@ -172,9 +172,9 @@ ggP
 
 ![](dev_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
-On voit très bien sur la graphique ci-dessus que la concentration CO2 Augmente au fil du temps.
+On voit très bien sur la graphique ci-dessus que la concentration de CO2 Augmente au fil du temps.
 
-Chaque cycle correspond à une année.
+Chaque cycle correspond à une année et les couleurs sont aussi differentes
 
 2- Sépation de la série en partie d'entrainement (environ 70% des données) et en parties test
 =============================================================================================
@@ -331,7 +331,7 @@ length(hawai_import_ts_test)
 
     ## [1] TRUE
 
-Donc la série est séparée en partie d'entrainement et en partie test
+Donc la série a bien été séparée en partie d'entrainement et en partie test
 
 3- Création d'un modèle `ETS` sur les données d'entrainement, puis projection de la prévision de CO2 atmosphérique pour comparer aux données test
 =================================================================================================================================================
@@ -493,7 +493,7 @@ C'est ce qu'on constate ici.
 5- Les commentaires
 ===================
 
-la plupart des commentaires sont inséerrés après chaque partie du document, mais en ce qui a trait au modele `ets` on peut dire que ce modèle n'est pas fiable suivant les résultats de la prévision.
+La plupart des commentaires sont insérrés après chaque partie du document, mais en ce qui a trait au modele `ets` on peut dire que ce modèle n'est pas fiable suivant les résultats de la prévision.
 
 on pourrait améliorer le modèle en appliquant un autre méthode qui conviendrait le mieux comme ARIMA par exemple.
 
@@ -576,6 +576,8 @@ L'analyse de l'exactitude de la prévision nous donne des valeurs de paramètres
 conclusion
 ==========
 
-Dans ce travail, nous avons procecé à l’analyse d’une série, produire un modèle sur celle-ci et effecuer des commentires sur sa prevision. un modèle ets a été créé sur la série dont les résultats montrent sa non fiabilité a prédire sur les données de test. un modele arima a été appliqué sur les données et les résultats se revelent meilleur que ceux de l’ets.
+Dans ce travail, nous avons procecé à l'analyse d'une série temporelle, produire un modèle sur celle-ci et effecuer des commentires sur sa prévision. un modèle ets a été créé sur la série dont les résultats montrent sa non fiabilité à prédire sur les données de test. un modèle `arima` a été appliqué sur les données et les résultats se revèlent meilleurs que ceux de l'`ets`.
 
-Donc, le modèle malgré son bon ajustement sur les données d’entrainement n,a permis pas une bonne prédiction.
+Donc, le modèle `ets` malgré son bon ajustement sur les données d'entrainement n'a pas permis une bonne prédiction.
+
+Cela nous permet aussi de conclure qu'en analyse prédictive, il bien d'essayer plusieurs modèles et de les comparer pour pouvoir choisir celui qui convient le mieux aux données analysées.
